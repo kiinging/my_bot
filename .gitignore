@@ -1,0 +1,19 @@
+# Ignore build folder
+/build/
+
+# Ignore ROS 2 log files
+/log/
+
+# Ignore other common files
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore node_modules for JavaScript/Node.js projects
+node_modules/
