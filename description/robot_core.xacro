@@ -3,18 +3,16 @@
 
     <xacro:include filename="inertial_macros.xacro"/>
 
-
-
     <xacro:property name="chassis_length" value="0.14"/>
     <xacro:property name="chassis_width" value="0.175"/>
-    <xacro:property name="chassis_height" value="0.08"/>
+    <xacro:property name="chassis_height" value="0.110"/>
     <xacro:property name="chassis_mass" value="1.0"/>
     <xacro:property name="wheel_radius" value="0.034"/>
     <xacro:property name="wheel_thickness" value="0.025"/>
     <xacro:property name="wheel_mass" value="0.02"/>
-    <xacro:property name="wheel_offset_x" value="0.13"/>
-    <xacro:property name="wheel_offset_y" value="0.1"/>
-    <xacro:property name="wheel_offset_z" value="-0.035"/>
+    <xacro:property name="chassis_offset_x" value="0.12"/>
+    <xacro:property name="chassis_offset_y" value="0.1"/>
+    <xacro:property name="chassis_offset_z" value="0.035"/>
     <xacro:property name="caster_wheel_radius" value="0.03"/>
     <xacro:property name="caster_wheel_mass" value="0.04"/>
     <xacro:property name="caster_wheel_offset_x" value="0.02"/>
@@ -43,13 +41,10 @@
     </material>
 
     <!-- BASE LINK -->
-
     <link name="base_link">
-
     </link>
 
     <!-- BASE_FOOTPRINT LINK -->
-
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_link"/>
         <child link="base_footprint"/>
@@ -61,10 +56,13 @@
 
 
     <!-- CHASSIS LINK -->
+    <!-- The box origin is at the bottom and back, the chassis relate to base_link is -->
+    <!-- chassic move left by ( ${-wheel_offset_x} ) and move up by ${wheel_offset_z}) -->
+    <!-- relative to the origin <0, 0, 0>-->
     <joint name="chassis_joint" type="fixed">
         <parent link="base_link"/>
         <child link="chassis"/>
-        <origin xyz="${-wheel_offset_x} 0 ${-wheel_offset_z}"/>
+        <origin xyz="${-chassis_offset_x} 0 ${chassis_offset_z}"/>
     </joint>
 
     <link name="chassis">
@@ -91,11 +89,14 @@
     </gazebo>
 
     <!-- LEFT WHEEL LINK -->
-
+    <!-- clockwise==(negative rotation) counterclockwise== (positive rotation)-->
+    <!-- right hand rule -->
+    <!-- axis z is "1", car is moving fordward-->
     <joint name="left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="left_wheel"/>
-        <origin xyz="0 ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
+        <origin xyz="0 ${chassis_offset_y} 0" rpy="-${pi/2} 0 0" /> 
+       <!--<origin xyz="0 ${chassis_offset_y} 0" rpy="0 0 0" /> --> 
         <axis xyz="0 0 1"/>
     </joint>
 
@@ -120,15 +121,11 @@
         <material>Gazebo/Blue</material>
     </gazebo>
 
-
-
-
     <!-- RIGHT WHEEL LINK -->
-
     <joint name="right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="right_wheel"/>
-        <origin xyz="0 ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
+        <origin xyz="0 ${-chassis_offset_y} 0" rpy="${pi/2} 0 0" />
         <axis xyz="0 0 -1"/>
     </joint>
 
