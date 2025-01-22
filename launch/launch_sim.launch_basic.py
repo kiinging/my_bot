@@ -3,8 +3,7 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, RegisterEventHandler
-from launch.event_handlers import OnProcessExit
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
@@ -27,7 +26,7 @@ def generate_launch_description():
 
     # Run the spawner node to spawn the entity
     spawn_entity = Node(
-        package='gazebo_ros', executable='spawn_entity.py',
+        package='ros_gz_sim', executable='spawn_entity.py',
         arguments=['-topic', 'robot_description', '-entity', 'my_bot'],
         output='screen'
     )

@@ -1,0 +1,18 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/trajectory_server/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/serial_motor_demo/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/serial_motor_demo_msgs/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/mogi_trajectory_server/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/joy_tester/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/trajectory_server/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/serial_motor_demo/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/serial_motor_demo_msgs/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/mogi_trajectory_server/lib/python3.12/site-packages",
+        "/home/pizza/ros2_projects/joshnewans/dev_ws/install/joy_tester/lib/python3.12/site-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages"
+    ]
+}

@@ -1,0 +1,17 @@
+twist_mux:
+  ros__parameters:
+    use_stamped: false
+    topics:
+      - name: navigation
+        topic: /cmd_vel
+        timeout: 0.5
+        priority: 10
+      - name: tracker
+        topic: /cmd_vel_tracker
+        timeout: 0.5
+        priority: 20
+      - name: joystick
+        topic: /cmd_vel_joy
+        timeout: 0.5
+        priority: 100
+    use_sim_time: true
