@@ -23,16 +23,21 @@ def generate_launch_description():
                 PathJoinSubstitution([
                     FindPackageShare('my_bot'),
                     'description',
-                    f'robot.xacro.{performed_description_format}'
+                    f'robot.{performed_description_format}.xacro'
                 ]),
             ]
         )
-        robot_description = {'robot_description': robot_description_content}
+        params = {'robot_description': robot_description_content,'use_sim_time': use_sim_time}
+        
         node_robot_state_publisher = Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             output='screen',
-            parameters=[robot_description]
+            parameters=[params],
+            remappings=[
+                ('/tf', 'tf'),
+                ('/tf_static', 'tf_static')
+            ]
         )
         return [node_robot_state_publisher]
 
@@ -67,29 +72,24 @@ def generate_launch_description():
             ],
     )
 
-    # Bridge
-    bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
+    # Node to bridge messages like /cmd_vel and /odom
+    bridge_node = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
         arguments=[
-            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
-            "/cmd_vel_unstamped@geometry_msgs/msg/Twist@gz.msgs.Twist",
-            "/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry",
-            "/joint_states@sensor_msgs/msg/JointState@gz.msgs.Model",
-            #"/tf@tf2_msgs/msg/TFMessage@gz.msgs.Pose_V",
-            #"/camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image",
-            "/navsat@sensor_msgs/msg/NavSatFix@gz.msgs.NavSat",
-            "/camera/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo",
-            "imu@sensor_msgs/msg/Imu@gz.msgs.IMU",
-            "/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan",
-            "/camera/depth_image@sensor_msgs/msg/Image@gz.msgs.Image",
-            "/camera/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked",
-            
-            ],
-        output='screen'
+            '--ros-args',
+            '-p',
+            PathJoinSubstitution([
+                FindPackageShare('my_bot'),
+                'config',
+                'gz_bridge.yaml'
+            ])
+        ],
+        output='screen',
     )
-    
-       # Launch RViz2
+
+
+    # Launch RViz2
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
@@ -106,7 +106,7 @@ def generate_launch_description():
     )
 
     # Include joystick launch file
-    joystick = IncludeLaunchDescription(
+    joystick_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
                 FindPackageShare('my_bot'),
@@ -115,6 +115,45 @@ def generate_launch_description():
             ])
         ]),
         launch_arguments={'use_sim_time': use_sim_time}.items(),
+    )
+
+      # Define the gz_image_bridge_node
+    gz_image_bridge_node = Node(
+        package="ros_gz_image",
+        executable="image_bridge",
+        arguments=["/camera/image"],
+        output="screen",
+        parameters=[
+            {'use_sim_time': use_sim_time,
+             'camera.image.compressed.jpeg_quality': 60},
+        ],
+    )
+
+    # Define the relay_camera_info_node
+    relay_camera_info_node = Node(
+        package='topic_tools',
+        executable='relay',
+        name='relay_camera_info',
+        output='screen',
+        arguments=['camera/camera_info', 'camera/image/camera_info'],
+        parameters=[{'use_sim_time': use_sim_time}],
+    )
+
+    # Define the ekf_node
+    ekf_config_file = PathJoinSubstitution([
+        FindPackageShare('my_bot'),
+        'config',
+        'ekf.yaml'
+    ])
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[
+            ekf_config_file,
+            {'use_sim_time': use_sim_time},
+        ],
     )
 
 
@@ -138,10 +177,13 @@ def generate_launch_description():
                 on_exit=[diff_drive_base_controller_spawner],
             )
         ),
-        bridge,
+        bridge_node,
         gz_spawn_entity,
         rviz_node,
-        joystick,  # Add joystick node here
+        joystick_launch,  # Add joystick node here
+        gz_image_bridge_node,  # Include the image bridge node
+        relay_camera_info_node,  # Include the relay node
+        ekf_node,  # Include the EKF node
         # Launch Arguments
         DeclareLaunchArgument(
             'use_sim_time',
